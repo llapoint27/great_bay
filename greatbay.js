@@ -58,8 +58,21 @@ function postAuction() {
             message: "What would you like to start your bid at?"
         }
     ]).then(function (userInput){
-        console.log("You've added")
+        console.log("You've added the following product: \n")
 
+        var query = connection.query (
+            "INSERT INTO auctions SET ?",
+            {
+            item_name: userInput.itemName,
+            category: userInput.category,
+            starting_bid: userInput.startingBid,
+            highest_big: userInput.startingBid
+
+            },
+            function (err, response) {
+                console.log(response.affectedRows + " product had been added. \n");
+            }
+        )
 
     })
 
@@ -67,6 +80,28 @@ function postAuction() {
 }
 
 
-// function bidAuction() {
+function bidAuction() {
 
-// }
+inquirer.prompt ([
+
+    {
+        type: "input",
+        name: "itemName", 
+        message: "What would you like to place a bid on?"
+    },
+
+    {
+        type: "input",
+        name: "highestBid",
+        message: "How much money would you like to bid?" 
+
+    }
+]).then(function(userInput){
+    console.log("You've entered: "+ userInput.itemName);
+
+})
+
+
+
+
+}
