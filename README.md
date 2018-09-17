@@ -1,4 +1,4 @@
-**Instructions**
+**Great Bay**
 
 * This is a Node application called "Great-Bay" which allows users to create and bid on assorted items, tasks, jobs, or projects.
 
