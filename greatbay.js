@@ -5,7 +5,7 @@ var connection = mysql.createConnection({
     host: "localhost",
     port: 3306,
     user: "root",
-    password: "LaL@1991",
+    password: " ",
     database: "great_bayDB"
 });
 
@@ -23,13 +23,14 @@ function start() {
         {
             type: "list",
             name: "choice",
-            message: "Please bid or post an item.",
+            message: "Welcome, would you like to POST an auction or BID on an auction?",
             choice: ["Bid", "Post"],
         }
 
-    ]).then(function (userInput){
-        if (userInput.choice === "Bid"){
-            bidAction();
+        //based on user's answer the following functions will be called
+    ]).then(function (answer) {
+        if (answer.choice === "Bid") {
+            bidAuction();
         } else {
             postAuction();
         }
@@ -40,68 +41,73 @@ function postAuction() {
     inquirer.prompt([
         {
             type: "input",
-            name: "itemName",
+            name: "item",
             message: "What item would you like to post?"
-
         },
 
         {
             type: "input",
-            category: "itemCategory",
+            category: "category",
             message: "What category would you like to add your item to?"
-
         },
 
         {
             type: "input",
-            name: "startBid",
+            name: "startingBid",
             message: "What would you like to start your bid at?"
         }
-    ]).then(function (userInput){
-        console.log("You've added the following product: \n")
 
-        var query = connection.query (
+    ]).then(function (answer) {
+
+        //insert a new item into the DB with the following info:
+        connection.query(
             "INSERT INTO auctions SET ?",
             {
-            item_name: userInput.itemName,
-            category: userInput.category,
-            starting_bid: userInput.startingBid,
-            highest_big: userInput.startingBid
+                item_name: answer.item,
+                category: answer.category,
+                starting_bid: answer.startingBid,
+                highest_big: answer.startingBid
 
             },
             function (err, response) {
-                console.log(response.affectedRows + " product had been added. \n");
+                console.log("Your auction has been added!");
+
+                start();
             }
         )
-
     })
-
-
 }
 
 
-function bidAuction() {
+// function bidAuction() {
 
-inquirer.prompt ([
+//     connection.query('SELECT * FROM', function(err, results){
+//         if (err) throw err;
+//     });
+    
+//     inquirer.prompt([
 
-    {
-        type: "input",
-        name: "itemName", 
-        message: "What would you like to place a bid on?"
-    },
+//         {
+//             type: "input",
+//             name: "item",
+//             message: "What item would you like to place a bid on?"
+//         },
 
-    {
-        type: "input",
-        name: "highestBid",
-        message: "How much money would you like to bid?" 
+//         {
+//             type: "input",
+//             name: "highestBid",
+//             message: "How much money would you like to bid?"
 
-    }
-]).then(function(userInput){
-    console.log("You've entered: "+ userInput.itemName);
-
-})
+//         }
+//     ]).then(function (userInput) {
+//         console.log("You've entered: " + userInput.itemName);
 
 
 
 
-}
+//     })
+
+
+
+
+// }
