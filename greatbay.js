@@ -5,7 +5,7 @@ var connection = mysql.createConnection({
     host: "localhost",
     port: 3306,
     user: "root",
-    password: " ",
+    password: "LaL@1991",
     database: "great_bayDB"
 });
 
@@ -22,9 +22,9 @@ function start() {
     inquirer.prompt([
         {
             type: "list",
-            name: "choice",
+            name: "choices",
             message: "Welcome, would you like to POST an auction or BID on an auction?",
-            choice: ["Bid", "Post"],
+            choices: ["Bid", "Post"],
         }
 
         //based on user's answer the following functions will be called
@@ -47,7 +47,7 @@ function postAuction() {
 
         {
             type: "input",
-            category: "category",
+            name: "category",
             message: "What category would you like to add your item to?"
         },
 
@@ -72,42 +72,59 @@ function postAuction() {
             function (err, response) {
                 console.log("Your auction has been added!");
 
-                start();
+                // start();
             }
         )
     })
 }
 
 
-// function bidAuction() {
+function bidAuction() {
 
-//     connection.query('SELECT * FROM', function(err, results){
-//         if (err) throw err;
-//     });
-    
-//     inquirer.prompt([
+    connection.query('SELECT * FROM', function (err, results) {
+        if (err) throw err;
+        itemArray = [];
+        results.forEach(key => {
+            itemArray.push(key.id.toString());
+        });
+    });
 
-//         {
-//             type: "input",
-//             name: "item",
-//             message: "What item would you like to place a bid on?"
-//         },
+    inquirer.prompt([
 
-//         {
-//             type: "input",
-//             name: "highestBid",
-//             message: "How much money would you like to bid?"
+        {
+            type: "input",
+            name: "item",
+            message: "What item would you like to place a bid on?"
+        },
 
-//         }
-//     ]).then(function (userInput) {
-//         console.log("You've entered: " + userInput.itemName);
+        {
+            type: "input",
+            name: "highestBid",
+            message: "How much would you like to bid?"
+
+        }
+    ]).then(function (userInput) {
+        console.log("You've entered: " + userInput.item);
+
+        connection.query(
+            "UPDATING auctions SET ? WHERE ?",
+            [{
+                highest_bid: userInput.highestBid
+            },
+            {
+                item_name: userInput.item
+            }],
+
+            function (err){
+                if (err) throw err;
+                console.log("You bid has successfully updated!");
+            }
+
+        )
+
+        //else console.log("big was too low, try again");
+
+    });
 
 
-
-
-//     })
-
-
-
-
-// }
+}
