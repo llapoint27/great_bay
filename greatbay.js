@@ -29,8 +29,10 @@ function start() {
 
         //based on user's answer the following functions will be called
     ]).then(function (answer) {
-        if (answer.choice === "Bid") {
+        console.log(answer);
+        if (answer.choices === "Bid") {
             bidAuction();
+    
         } else {
             postAuction();
         }
@@ -54,25 +56,34 @@ function postAuction() {
         {
             type: "input",
             name: "startingBid",
-            message: "What would you like to start your bid at?"
+            message: "What would you like to start your bid at?",
+            validate: function(value) {
+                if (isNaN(value) === false) {
+                  return true;
+                }
+                return false;
+              }
         }
 
     ]).then(function (answer) {
+        console.log(answer);
+
+        let objectToAdd = {
+            item_name: answer.item,
+            category: answer.category,
+            starting_bid: answer.startingBid,
+            highest_bid: answer.startingBid
+        }
 
         //insert a new item into the DB with the following info:
         connection.query(
             "INSERT INTO auctions SET ?",
-            {
-                item_name: answer.item,
-                category: answer.category,
-                starting_bid: answer.startingBid,
-                highest_big: answer.startingBid
-
-            },
+          
+            objectToAdd,
             function (err, response) {
                 console.log("Your auction has been added!");
 
-                // start();
+                start();
             }
         )
     })
@@ -81,20 +92,21 @@ function postAuction() {
 
 function bidAuction() {
 
-    connection.query('SELECT * FROM', function (err, results) {
+    connection.query('SELECT * FROM auctions', function (err, results) {
         if (err) throw err;
         itemArray = [];
         results.forEach(key => {
-            itemArray.push(key.id.toString());
+            itemArray.push(key.item_name.toString());
         });
-    });
+
 
     inquirer.prompt([
 
         {
-            type: "input",
+            type: "list",
             name: "item",
-            message: "What item would you like to place a bid on?"
+            message: "What item would you like to place a bid on?",
+            choices: itemArray
         },
 
         {
@@ -125,6 +137,7 @@ function bidAuction() {
         //else console.log("big was too low, try again");
 
     });
+});
 
 
 }
