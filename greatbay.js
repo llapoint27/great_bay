@@ -39,6 +39,7 @@ function start() {
     })
 }
 
+
 function postAuction() {
     inquirer.prompt([
         {
@@ -104,37 +105,43 @@ function bidAuction() {
 
         {
             type: "list",
-            name: "item",
+            name: "choice",
             message: "What item would you like to place a bid on?",
             choices: itemArray
         },
 
         {
-            type: "input",
+            type: "bid",
             name: "highestBid",
             message: "How much would you like to bid?"
 
         }
     ]).then(function (userInput) {
-        console.log("You've entered: " + userInput.item);
 
-        connection.query(
-            "UPDATING auctions SET ? WHERE ?",
-            [{
-                highest_bid: userInput.highestBid
-            },
-            {
-                item_name: userInput.item
-            }],
+        //need to validate the bids
+        //where do I stop connection?
+        console.log("You've updated bid to " + userInput.choice + " \n")
+      
 
-            function (err){
-                if (err) throw err;
-                console.log("You bid has successfully updated!");
-            }
+            connection.query(
+                "UPDATING auctions SET ? WHERE ?",
+                [{
+                    highest_bid: userInput.highestBid
+                },
+                {
+                    id: choice
+                }],
+    
+                function (err){
+                    if (err) throw err;
+                    console.log("You bid has successfully updated!");
+                } 
 
-        )
+                
+            )
 
-        //else console.log("big was too low, try again");
+        
+
 
     });
 });
