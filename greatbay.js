@@ -18,7 +18,6 @@ connection.connect(function (err) {
 });
 
 function start() {
-
     //create user prompts
     inquirer.prompt([
         {
@@ -33,13 +32,12 @@ function start() {
         console.log(answer);
         if (answer.choices === "Bid") {
             bidAuction();
-    
+
         } else {
             postAuction();
         }
     })
 }
-
 
 function postAuction() {
     inquirer.prompt([
@@ -59,12 +57,12 @@ function postAuction() {
             type: "input",
             name: "startingBid",
             message: "What would you like to start your bid at?",
-            validate: function(value) {
+            validate: function (value) {
                 if (isNaN(value) === false) {
-                  return true;
+                    return true;
                 }
                 return false;
-              }
+            }
         }
 
     ]).then(function (answer) {
@@ -80,7 +78,7 @@ function postAuction() {
         //insert a new item into the DB with the following info:
         connection.query(
             "INSERT INTO auctions SET ?",
-          
+
             objectToAdd,
             function (err, response) {
                 console.log("Your auction has been added!");
@@ -91,61 +89,56 @@ function postAuction() {
     })
 }
 
-
 function bidAuction() {
 
     connection.query('SELECT * FROM auctions', function (err, results) {
         if (err) throw err;
-        itemArray = [];
+        var itemArrayNames = [];
+        var itemArray = [];
         results.forEach(key => {
-            itemArray.push(key.item_name.toString());
+            itemArrayNames.push(key.item_name.toString());
+            itemArray.push(key);
         });
 
 
-    inquirer.prompt([
+        inquirer.prompt([
 
-        {
-            type: "list",
-            name: "choice",
-            message: "What item would you like to place a bid on?",
-            choices: itemArray
-        },
+            {
+                type: "list",
+                name: "choice",
+                message: "What item would you like to place a bid on?",
+                choices: itemArrayNames
+            },
 
-        {
-            type: "bid",
-            name: "highestBid",
-            message: "How much would you like to bid?"
+            {
+                type: "bid",
+                name: "highestBid",
+                message: "How much would you like to bid?"
 
-        }
-    ]).then(function (userInput) {
+            }
+        ]).then(function (userInput) {
+            // console.log("You've updated bid to " + userInput.choice + " \n")
+            var currentBidItem = itemArray[itemArrayNames.indexOf(userInput.choice)]
 
-        //need to validate the bids
-        //where do I stop connection?
-        console.log("You've updated bid to " + userInput.choice + " \n")
-      
+            if (userInput.highestBid > currentBidItem.highest_bid) {
 
-            connection.query(
-                "UPDATING auctions SET ? WHERE ?",
-                [{
-                    highest_bid: userInput.highestBid
-                },
-                {
-                    id: choice
-                }],
-    
-                function (err){
-                    if (err) throw err;
-                    console.log("You bid has successfully updated!");
-                } 
+                console.log("we have a new bid: " + userInput.highestBid);
 
-                
-            )
+                //Update the database
+                connection.query(
+                    "UPDATE auctions SET ? WHERE ?",
+                    [{
+                        highest_bid: userInput.highestBid
+                    },
+                    {
+                        item_name: userInput.choice
+                    }]
+                )
+            } else {
+                console.log('\nSorry, someone outbid you.\nPlease bid higher if you would like.')
+            }
 
-        
-
-
+        });
     });
-});
-
 
 }
